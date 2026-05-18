@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CEMS — Caraga State University Event Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<body>
+
+<!-- ===================== NAV ===================== -->
+<nav>
+  <div class="nav-logo" onclick="showPage('home')">
+    <div class="logo-mark">C</div>
+    <div class="logo-text"><strong>CEMS</strong><small>Caraga State University</small></div>
+  </div>
+  <div class="nav-search">
+    <input type="text" id="globalSearchInput" placeholder="Search events, organizers..." oninput="globalSearch(this.value)" onfocus="globalSearch(this.value)">
+    <div class="search-results-drop" id="searchDrop"></div>
+  </div>
+  <div class="nav-spacer"></div>
+  <div class="nav-actions" id="navActions"></div>
+</nav>
+
+<div class="announcement-bar" id="annBar">
+  <span class="ann-label">📢 Announcement</span>
+  <span id="annText">Welcome Golden Paddlers — AY 2025-2026 events are now open for registration!</span>
+  <span class="ann-close" onclick="document.getElementById('annBar').classList.add('hidden')">×</span>
+</div>
+
+<!-- ===================== HOME ===================== -->
+<div class="page active" id="page-home">
+
+  <!-- PUBLIC LANDING (shown only when not logged in) -->
+  <div id="home-public">
+    <section class="hero">
+      <div class="hero-inner">
+        <div>
+          <span class="hero-tag">Caraga State University · AY 2025-2026</span>
+          <h1>Where <span class="gold">Golden Paddlers</span> create unforgettable moments.</h1>
+          <p class="lead">The official event hub of Caraga State University. Discover, register, and lead campus events — from academic forums to cultural celebrations, all in one place.</p>
+          <div class="hero-cta">
+            <button class="btn btn-gold" onclick="openLogin()">🎓 Get Started</button>
+            <button class="btn btn-ghost" style="color:#fff;border-color:rgba(245,197,24,.5)" onclick="goBrowseEvents()">Browse Events</button>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-card hc-1"><div class="hc-img">🎓</div><div class="hc-title">Academic Excellence Forum</div><div class="hc-meta">📅 Nov 15 · 🏛️ Main Auditorium</div></div>
+          <div class="hero-card hc-2"><div class="hc-img">🎭</div><div class="hc-title">Cultural Night 2025</div><div class="hc-meta">📅 Dec 5 · 🏛️ Open Grounds</div></div>
+          <div class="hero-card hc-3"><div class="hc-img">⚽</div><div class="hc-title">Inter-College Sports</div><div class="hc-meta">📅 Jan 20 · 🏟️ Sports Complex</div></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="featured-strip">
+      <div class="featured-head">
+        <h3>⭐ Featured Events</h3>
+        <span style="font-size:13px;color:var(--text-muted)">Hand-picked highlights from across CSU</span>
+      </div>
+      <div class="featured-scroll" id="featuredStrip"></div>
+    </div>
+
+    <section class="section" id="events-section">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-eyebrow">What's Happening</div>
+          <h2 class="section-title">Upcoming Campus Events</h2>
+          <p class="section-sub">Discover events designed to enrich your university experience — academic, cultural, athletic, and beyond.</p>
+        </div>
+        <div class="events-grid" id="homeEvents"></div>
+        <!-- Sign-in CTA for public -->
+        <div id="homeSignInCta" style="display:none;text-align:center;margin-top:36px;padding:32px;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow-sm)">
+          <div style="font-size:40px;margin-bottom:12px">🔒</div>
+          <h3 style="font-family:'Playfair Display',serif;color:var(--csu-green-dark);margin-bottom:8px">See the full picture</h3>
+          <p style="color:var(--text-muted);margin-bottom:20px;font-size:15px">Sign in to access the News Feed, follow organizations, register for events, and interact with the CSU community.</p>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+            <button class="btn btn-primary" onclick="openLogin('login')">Sign In</button>
+            <button class="btn btn-gold" onclick="openLogin('signup')">Create Account</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="past-events-section" style="padding-top:0">
+      <div class="container">
+        <div class="section-head">
+          <div class="section-eyebrow">Memory Lane</div>
+          <h2 class="section-title">Past Events</h2>
+          <p class="section-sub">Look back at events that have already taken place at Caraga State University.</p>
+        </div>
+        <div class="events-grid" id="pastEvents"></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- NEWS FEED (shown only when logged in) -->
+  <div id="home-feed" style="display:none">
+    <div class="dash-head" style="padding:28px 32px">
+      <div class="dash-head-inner">
+        <div class="dash-greet">
+          <h2>Good to see you, <span class="gold" id="feedGreetName">friend</span> 👋</h2>
+          <p>Here's what's happening across CSU organizations.</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn btn-outline" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)" onclick="showPage('browse')">📅 Browse Events</button>
+        </div>
+      </div>
+    </div>
+    <div class="container" style="padding-top:28px;padding-bottom:48px">
+      <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:28px;align-items:start" id="feedLayout">
+
+        <!-- LEFT: Feed -->
+        <div>
+          <!-- Composer (organizers only) -->
+          <div id="feedComposer" style="display:none;margin-bottom:20px"></div>
+
+          <!-- Feed tabs -->
+          <div class="tabs" id="feedTabs" style="margin-bottom:20px">
+            <span class="tab active" onclick="setFeedTab('feed',this)">📰 My Feed</span>
+            <span class="tab" onclick="setFeedTab('discover',this)">🌐 Discover</span>
+          </div>
+
+          <div id="feedPostsWrap"></div>
+        </div>
+
+        <!-- RIGHT: Sidebar -->
+        <div id="feedSidebar">
+          <!-- Upcoming events mini widget -->
+          <div class="panel" style="margin-bottom:20px">
+            <div class="panel-head" style="padding:14px 18px"><div class="panel-title" style="font-size:16px">📅 Upcoming Events</div></div>
+            <div class="panel-body" style="padding:0" id="feedUpcomingEvents"></div>
+          </div>
+          <!-- Suggested orgs -->
+          <div class="panel">
+            <div class="panel-head" style="padding:14px 18px"><div class="panel-title" style="font-size:16px">🏢 Organizations</div></div>
+            <div class="panel-body" style="padding:12px" id="feedSuggestedOrgs"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===================== STUDENT DASHBOARD ===================== -->
+<div class="page" id="page-dashboard">
+  <div class="dash-head">
+    <div class="dash-head-inner">
+      <div class="dash-greet">
+        <h2>Welcome, <span class="gold" id="dashName">Student</span> 👋</h2>
+        <p>Manage your event registrations and discover what's next on campus.</p>
+      </div>
+      <button class="btn btn-gold" onclick="goBrowseEvents()">Browse Events →</button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="dash-grid">
+      <div class="dash-card"><div class="dash-card-icon">🎟️</div><div class="dash-card-num" id="ds1">0</div><div class="dash-card-lbl">Registered Events</div></div>
+      <div class="dash-card"><div class="dash-card-icon gold">⏰</div><div class="dash-card-num" id="ds2">0</div><div class="dash-card-lbl">Upcoming</div></div>
+      <div class="dash-card"><div class="dash-card-icon info">✅</div><div class="dash-card-num" id="ds3">0</div><div class="dash-card-lbl">Attended</div></div>
+      <div class="dash-card"><div class="dash-card-icon danger">📜</div><div class="dash-card-num" id="ds4">0</div><div class="dash-card-lbl">Certificates</div></div>
+    </div>
+    <div class="panel" id="upcomingPanel">
+      <div class="panel-head"><div class="panel-title">Your Next Event</div></div>
+      <div class="panel-body" id="upcomingBody"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">My Registrations</div></div>
+      <div class="panel-body tight"><div id="myRegsTbl"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ORGANIZER DASHBOARD ===================== -->
+<div class="page" id="page-organizer">
+  <div class="dash-head">
+    <div class="dash-head-inner">
+      <div class="dash-greet">
+        <h2>Organizer Hub <span class="gold">·</span> <span id="orgName">Organizer</span></h2>
+        <p>Create, manage, and track engagement for your campus events.</p>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-gold" onclick="openCreateEvent()">+ Create New Event</button>
+        <button class="btn btn-outline" id="createOrgPageBtn" onclick="openCreateOrgModal()" style="display:none">🏢 Create Organization Page</button>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="dash-grid">
+      <div class="dash-card"><div class="dash-card-icon">📅</div><div class="dash-card-num" id="os1">0</div><div class="dash-card-lbl">Total Events</div></div>
+      <div class="dash-card"><div class="dash-card-icon gold">👥</div><div class="dash-card-num" id="os2">0</div><div class="dash-card-lbl">Total Registrations</div></div>
+      <div class="dash-card"><div class="dash-card-icon info">⭐</div><div class="dash-card-num" id="os3" style="font-size:22px;line-height:1.2">—</div><div class="dash-card-lbl">Satisfaction Rate</div><div id="os3sub" style="font-size:11px;color:var(--text-muted);margin-top:2px"></div></div>
+      <div class="dash-card"><div class="dash-card-icon danger">⏳</div><div class="dash-card-num" id="os4">0</div><div class="dash-card-lbl">Pending Approval</div></div>
+    </div>
+    <div class="tabs" id="orgDashTabs" style="margin-bottom:0">
+      <span class="tab active" onclick="switchOrgMainTab('events',this)">📅 My Events</span>
+      <span class="tab" onclick="switchOrgMainTab('myorg',this)">🏢 My Organization Page</span>
+    </div>
+    <div id="orgDashEventsSection">
+      <div class="panel" style="border-radius:0 0 16px 16px;border-top:none">
+        <div class="panel-head">
+          <div class="panel-title">My Events</div>
+          <div class="tabs" style="border:none;margin:0">
+            <span class="tab active" onclick="switchOrgTab('all',this)">All</span>
+            <span class="tab" onclick="switchOrgTab('approved',this)">Approved</span>
+            <span class="tab" onclick="switchOrgTab('pending',this)">Pending</span>
+            <span class="tab" onclick="switchOrgTab('rejected',this)">Rejected</span>
+          </div>
+        </div>
+        <div class="panel-body tight"><div id="orgEventsTbl"></div></div>
+      </div>
+    </div>
+    <div id="orgDashMyOrgSection" style="display:none">
+      <div class="panel" style="border-radius:0 0 16px 16px;border-top:none">
+        <div id="orgMyOrgContent"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ADMIN DASHBOARD ===================== -->
+<div class="page" id="page-admin">
+  <div class="dash-head">
+    <div class="dash-head-inner">
+      <div class="dash-greet">
+        <h2>Admin Console <span class="gold">·</span> CEMS</h2>
+        <p>Oversee events, users, and platform-wide activity at Caraga State University.</p>
+      </div>
+      <button class="btn btn-gold" onclick="openAnnouncement()">📢 Post Announcement</button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="dash-grid">
+      <div class="dash-card"><div class="dash-card-icon">📅</div><div class="dash-card-num" id="as1">0</div><div class="dash-card-lbl">All Events</div></div>
+      <div class="dash-card"><div class="dash-card-icon gold">⏳</div><div class="dash-card-num" id="as2">0</div><div class="dash-card-lbl">Pending Approval</div></div>
+      <div class="dash-card"><div class="dash-card-icon info">👥</div><div class="dash-card-num" id="as3">0</div><div class="dash-card-lbl">Total Users</div></div>
+      <div class="dash-card"><div class="dash-card-icon danger">🏢</div><div class="dash-card-num" id="as4">0</div><div class="dash-card-lbl">Total Organizations</div></div>
+    </div>
+    <div class="tabs">
+      <span class="tab active" onclick="switchAdminTab('pending',this)">⏳ Pending Events</span>
+      <span class="tab" onclick="switchAdminTab('all',this)">📅 All Events</span>
+      <span class="tab" onclick="switchAdminTab('users',this)">👥 Users</span>
+      <span class="tab" onclick="switchAdminTab('orgs',this)">🏢 Organizations</span>
+      <span class="tab" onclick="switchAdminTab('regs',this)">📊 Registrations Report</span>
+      <span class="tab" onclick="switchAdminTab('feedback',this)">⭐ Event Feedback</span>
+    </div>
+    <div class="panel">
+      <div class="panel-body tight"><div id="adminTabContent"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ORGANIZATIONS PAGE ===================== -->
+<div class="page" id="page-orgs">
+  <div class="dash-head">
+    <div class="dash-head-inner">
+      <div class="dash-greet">
+        <h2>Student <span class="gold">Organizations</span> 🏢</h2>
+        <p>Follow organizations and stay updated on campus life.</p>
+      </div>
+    </div>
+  </div>
+  <div class="container" style="padding-top:28px">
+    <div class="tabs" id="orgsBrowseTabs" style="margin-bottom:24px">
+      <span class="tab active" onclick="setOrgsPageTab('feed',this)">📰 My Feed</span>
+      <span class="tab" onclick="setOrgsPageTab('discover',this)">🔍 Discover</span>
+    </div>
+    <!-- Feed tab -->
+    <div id="orgsFeedPane">
+      <div class="orgs-feed-wrap" id="orgsFeedContent"></div>
+    </div>
+    <!-- Discover tab -->
+    <div id="orgsDiscoverPane" style="display:none">
+      <div style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center">
+        <input class="filter-select" id="orgSearchInput" type="text" placeholder="Search organizations..." style="flex:1;min-width:200px;background:#fff;max-width:400px" oninput="renderOrgsDiscover()">
+      </div>
+      <div id="orgsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ORG PROFILE PAGE ===================== -->
+<div class="page" id="page-orgprofile">
+  <div id="orgProfileBody"></div>
+</div>
+
+<!-- ===================== EVENT DETAILS PAGE ===================== -->
+<div class="page" id="page-event">
+  <div class="container" id="eventDetailsBody"></div>
+</div>
+
+<!-- ===================== BROWSE EVENTS PAGE ===================== -->
+<div class="page" id="page-browse">
+  <div class="container">
+    <button class="btn btn-outline" onclick="showPage('home')" style="margin-bottom:18px">← Back to Home</button>
+    <div class="section-head" style="text-align:left;margin-bottom:28px">
+      <div class="section-eyebrow">Explore</div>
+      <h2 class="section-title">All Campus Events</h2>
+      <p class="section-sub" style="margin:0">Browse, filter, and search every event happening at Caraga State University.</p>
+    </div>
+    <div class="filters-bar" id="browseFilters">
+      <span class="filter-chip active" onclick="setBrowseFilter('all',this)">All</span>
+      <span class="filter-chip" onclick="setBrowseFilter('Academic',this)">Academic</span>
+      <span class="filter-chip" onclick="setBrowseFilter('Cultural',this)">Cultural</span>
+      <span class="filter-chip" onclick="setBrowseFilter('Sports',this)">Sports</span>
+      <span class="filter-chip" onclick="setBrowseFilter('Seminar',this)">Seminar</span>
+      <span class="filter-chip" onclick="setBrowseFilter('Workshop',this)">Workshop</span>
+      <span class="filter-chip" onclick="setBrowseFilter('Community',this)">Community</span>
+      <div class="filter-spacer"></div>
+      <input class="filter-select" id="browseSearch" type="text" placeholder="Search events..." style="min-width:180px" oninput="renderBrowseEvents()">
+      <select class="filter-select" id="browseSort" onchange="renderBrowseEvents()">
+        <option value="date">Sort: Date</option>
+        <option value="popular">Sort: Popularity</option>
+        <option value="rating">Sort: Rating</option>
+        <option value="name">Sort: A–Z</option>
+      </select>
+    </div>
+    <div class="events-grid" id="browseEvents"></div>
+  </div>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+<div class="modal" id="loginModal">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div class="modal-title" id="authTitle">Sign in to CEMS</div>
+      <span class="modal-close" onclick="closeModal('loginModal')">×</span>
+    </div>
+    <div class="modal-body">
+      <form onsubmit="event.preventDefault();submitAuth()" id="authForm">
+        <div id="signupOnly" style="display:none">
+          <div class="field"><label>Full Name</label><input id="auFull" type="text" placeholder="Juan Dela Cruz"></div>
+          <div class="field-row">
+            <div class="field"><label>Student/Staff ID</label><input id="auId" type="text" placeholder="2023-00001"></div>
+            <div class="field"><label>Department</label>
+              <select id="auDept">
+                <option>College of Engineering & IT</option>
+                <option>College of Education</option>
+                <option>College of Arts & Sciences</option>
+                <option>College of Forestry & Environmental Science</option>
+                <option>College of Agriculture & Agri-Industries</option>
+                <option>Administrative</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="field"><label>Email</label><input id="auEmail" type="email" placeholder="you@carsu.edu.ph" required></div>
+        <div class="field"><label>Password</label><input id="auPass" type="password" placeholder="••••••••" required></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:13px" id="authSubmitBtn">Sign In</button>
+      </form>
+      <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--text-muted)">
+        <span id="switchAuthTxt">Don't have an account?</span>
+        <a onclick="toggleAuthMode()" style="color:var(--csu-green-dark);font-weight:600;cursor:pointer" id="switchAuthLink">Sign up</a>
+      </div>
+      <div class="demo-creds">
+        <strong>🔑 Demo Accounts (any password works)</strong>
+        student@carsu.edu.ph &nbsp;·&nbsp; organizer@carsu.edu.ph &nbsp;·&nbsp; admin@carsu.edu.ph
+        <br><span style="font-size:11px;color:var(--text-muted);margin-top:6px;display:block">
+          Having trouble signing in? <a onclick="hardResetDB()" style="color:var(--danger);cursor:pointer;font-weight:600">Reset app data</a>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="eventModal">
+  <div class="modal-card lg">
+    <div class="modal-head"><div class="modal-title" id="evModalTitle">Create Event</div><span class="modal-close" onclick="closeModal('eventModal')">×</span></div>
+    <div class="modal-body">
+      <form onsubmit="event.preventDefault();submitEventForm()">
+        <div class="field"><label>Event Title</label><input id="evTitle" type="text" required placeholder="Annual Engineering Symposium"></div>
+        <div class="field"><label>Event Image (optional)</label>
+          <input id="evImage" type="file" accept="image/*" onchange="handleEventImage(event)">
+          <div id="evImagePreview" style="margin-top:10px;display:none"><img id="evImagePreviewImg" style="max-width:200px;max-height:120px;border-radius:8px;border:1px solid var(--border)" alt=""><button type="button" class="btn btn-outline btn-sm" style="margin-left:10px" onclick="clearEventImage()">Remove</button></div>
+        </div>
+        <div class="field"><label>Description</label><textarea id="evDesc" required rows="6" style="min-height:140px;resize:vertical" placeholder="Tell students what to expect — agenda, speakers, what to bring, etc."></textarea></div>
+        <div class="field-row">
+          <div class="field"><label>Category</label>
+            <select id="evCat"><option>Academic</option><option>Cultural</option><option>Sports</option><option>Seminar</option><option>Workshop</option><option>Community</option></select>
+          </div>
+          <div class="field"><label>Capacity</label><input id="evCap" type="number" min="1" value="100" required></div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Date</label><input id="evDate" type="date" required></div>
+          <div class="field"><label>Time</label><input id="evTime" type="time" required></div>
+        </div>
+        <div class="field"><label>Venue</label><input id="evVenue" type="text" required placeholder="Main Auditorium, CSU"></div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('eventModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitEventForm()" id="evSubmitBtn">Create Event</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="annModal">
+  <div class="modal-card">
+    <div class="modal-head"><div class="modal-title">Post Announcement</div><span class="modal-close" onclick="closeModal('annModal')">×</span></div>
+    <div class="modal-body">
+      <div class="field"><label>Announcement Message</label><textarea id="annInput" placeholder="Important update for all students..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('annModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitAnnouncement()">Publish</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ===================== FEEDBACK MODAL ===================== -->
+<div class="modal" id="feedbackModal">
+  <div class="modal-card">
+    <div class="modal-head"><div class="modal-title">Leave Feedback</div><span class="modal-close" onclick="closeModal('feedbackModal')">×</span></div>
+    <div class="modal-body">
+      <div id="fbEventTitle" style="font-family:'Playfair Display',serif;font-size:18px;color:var(--csu-green-dark);font-weight:700;margin-bottom:14px"></div>
+      <div class="field">
+        <label>Your Rating</label>
+        <div class="stars" id="fbStarPicker" style="font-size:32px"></div>
+      </div>
+      <div class="field"><label>Your Review (min 10 characters)</label><textarea id="fbComment" placeholder="Share what you thought of this event..."></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('feedbackModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitFeedback()">Submit Feedback</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== VIEW FEEDBACK MODAL ===================== -->
+<div class="modal" id="viewFeedbackModal">
+  <div class="modal-card lg">
+    <div class="modal-head"><div class="modal-title" id="vfbTitle">Event Feedback</div><span class="modal-close" onclick="closeModal('viewFeedbackModal')">×</span></div>
+    <div class="modal-body" id="vfbBody"></div>
+  </div>
+</div>
+
+<!-- ===================== VIEW STUDENTS MODAL ===================== -->
+<div class="modal" id="viewStudentsModal">
+  <div class="modal-card lg" style="max-width:780px">
+    <div class="modal-head">
+      <div class="modal-title" id="vsModalTitle">Participants</div>
+      <span class="modal-close" onclick="closeModal('viewStudentsModal')">×</span>
+    </div>
+    <div class="modal-body" id="vsModalBody"></div>
+  </div>
+</div>
+
+<!-- ===================== UPLOAD CERTIFICATE MODAL ===================== -->
+<div class="modal" id="certUploadModal">
+  <div class="modal-card" style="max-width:520px">
+    <div class="modal-head">
+      <div class="modal-title">Upload Certificate</div>
+      <span class="modal-close" onclick="closeModal('certUploadModal')">×</span>
+    </div>
+    <div class="modal-body">
+      <div id="certUploadTarget" style="font-family:'Playfair Display',serif;font-size:16px;color:var(--csu-green-dark);font-weight:700;margin-bottom:16px"></div>
+      <div class="field">
+        <label>Certificate Type</label>
+        <select id="certType" onchange="toggleCertType()">
+          <option value="file">Upload File (PDF or Image)</option>
+          <option value="text">Text Certificate</option>
+        </select>
+      </div>
+      <div id="certFileSection" class="field">
+        <label>Upload PDF or Image</label>
+        <input type="file" id="certFileInput" accept=".pdf,image/*" onchange="handleCertFile(event)">
+        <div id="certFilePreview" style="margin-top:10px;display:none;font-size:13px;color:var(--csu-green-dark);font-weight:600"></div>
+      </div>
+      <div id="certTextSection" class="field" style="display:none">
+        <label>Certificate Text</label>
+        <textarea id="certTextInput" rows="5" placeholder="This is to certify that [Student Name] attended the event...&#10;&#10;(Use [Student Name] as a placeholder — it will be replaced with the student's name)"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('certUploadModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCertificate()">Save Certificate</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ORG EDIT MODAL ===================== -->
+<div class="modal" id="orgEditModal">
+  <div class="modal-card lg" style="max-width:600px">
+    <div class="modal-head">
+      <div class="modal-title" id="orgEditModalTitle">Edit Organization</div>
+      <span class="modal-close" onclick="closeModal('orgEditModal')">×</span>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="orgEditId">
+      <div class="field"><label>Organization Name</label><input id="orgEditName" type="text" placeholder="CSU Engineering Society"></div>
+      <div class="field"><label>Category</label>
+        <select id="orgEditCat">
+          <option>Academic</option><option>Cultural</option><option>Sports</option><option>Religious</option><option>Civic</option><option>Student Government</option><option>Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Description</label><textarea id="orgEditDesc" rows="3" placeholder="What is your organization about?"></textarea></div>
+      <div class="field-row">
+        <div class="field"><label>Facebook URL</label><input id="orgEditFb" type="url" placeholder="https://facebook.com/..."></div>
+        <div class="field"><label>Instagram URL</label><input id="orgEditIg" type="url" placeholder="https://instagram.com/..."></div>
+      </div>
+      <div class="field">
+        <label>Logo (Emoji or Upload Image)</label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <input id="orgEditEmoji" type="text" placeholder="🏢" style="width:70px;font-size:22px;text-align:center">
+          <span style="color:var(--text-muted);font-size:13px">or</span>
+          <input type="file" id="orgEditLogoFile" accept="image/*" onchange="handleOrgLogo(event)" style="flex:1">
+        </div>
+        <div id="orgLogoPreview" style="margin-top:8px;display:none"><img id="orgLogoPreviewImg" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--csu-gold)"></div>
+      </div>
+      <div class="field">
+        <label>Cover Photo</label>
+        <input type="file" id="orgEditCoverFile" accept="image/*" onchange="handleOrgCover(event)">
+        <div id="orgCoverPreview" style="margin-top:8px;display:none"><img id="orgCoverPreviewImg" style="width:100%;height:80px;object-fit:cover;border-radius:8px"></div>
+      </div>
+      <div class="field" id="orgEditOrganizerField">
+        <label>Assign to Organizer (User)</label>
+        <select id="orgEditOrganizer"></select>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:4px">The selected user will become an organizer if they aren't already.</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('orgEditModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveOrgEdit()">Save Organization</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CREATE ORGANIZATION MODAL (Organizer) ===================== -->
+<div class="modal" id="createOrgModal">
+  <div class="modal-card lg" style="max-width:560px">
+    <div class="modal-head">
+      <div class="modal-title">🏢 Create Your Organization Page</div>
+      <span class="modal-close" onclick="closeModal('createOrgModal')">×</span>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px">Set up your organization's page so students can discover, follow, and engage with your org.</p>
+      <div class="field"><label>Organization Name *</label><input id="coName" type="text" placeholder="e.g. CSU Engineering Society"></div>
+      <div class="field"><label>Category *</label>
+        <select id="coCat">
+          <option>Academic</option><option>Cultural</option><option>Sports</option><option>Religious</option><option>Civic</option><option>Student Government</option><option>Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Description</label><textarea id="coDesc" rows="3" placeholder="What is your organization about? What do you do?"></textarea></div>
+      <div class="field">
+        <label>Logo — type an emoji or upload an image</label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <input id="coEmoji" type="text" placeholder="🏢" style="width:70px;font-size:22px;text-align:center;border:1px solid var(--border);border-radius:8px;padding:8px">
+          <span style="color:var(--text-muted);font-size:13px">or upload image:</span>
+          <input type="file" id="coLogoFile" accept="image/*" onchange="readImgTo(this,'coLogoData')" style="flex:1">
+        </div>
+        <input type="hidden" id="coLogoData">
+      </div>
+      <div class="field">
+        <label>Cover Photo (banner image)</label>
+        <input type="file" id="coCoverFile" accept="image/*" onchange="readImgTo(this,'coCoverData')">
+        <input type="hidden" id="coCoverData">
+        <div id="coCoverPreview" style="display:none;margin-top:8px"><img id="coCoverPreviewImg" style="width:100%;height:80px;object-fit:cover;border-radius:8px"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('createOrgModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitCreateOrg()">Create Organization Page</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== ORG PAGE SETTINGS MODAL ===================== -->
+<div class="modal" id="orgPageSettingsModal">
+  <div class="modal-card lg" style="max-width:580px">
+    <div class="modal-head">
+      <div class="modal-title">⚙️ Edit Organization Page</div>
+      <span class="modal-close" onclick="closeModal('orgPageSettingsModal')">×</span>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label>Organization Name</label><input id="opsName" type="text"></div>
+      <div class="field"><label>Category</label>
+        <select id="opsCat">
+          <option>Academic</option><option>Cultural</option><option>Sports</option><option>Religious</option><option>Civic</option><option>Student Government</option><option>Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Description</label><textarea id="opsDesc" rows="4"></textarea></div>
+      <div class="field-row">
+        <div class="field"><label>Facebook URL</label><input id="opsFb" type="url" placeholder="https://facebook.com/..."></div>
+        <div class="field"><label>Instagram URL</label><input id="opsIg" type="url" placeholder="https://instagram.com/..."></div>
+      </div>
+      <div class="field">
+        <label>Logo (emoji or upload image)</label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <input id="opsEmoji" type="text" placeholder="🏢" style="width:70px;font-size:22px;text-align:center;border:1px solid var(--border);border-radius:8px;padding:8px">
+          <span style="color:var(--text-muted);font-size:13px">or upload:</span>
+          <input type="file" id="opsLogoFile" accept="image/*" onchange="readImgTo(this,'opsLogoData')" style="flex:1">
+        </div>
+        <input type="hidden" id="opsLogoData">
+        <div id="opsLogoPreview" style="display:none;margin-top:8px"><img id="opsLogoPreviewImg" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--csu-gold)"></div>
+      </div>
+      <div class="field">
+        <label>Cover Photo</label>
+        <input type="file" id="opsCoverFile" accept="image/*" onchange="readImgTo(this,'opsCoverData')">
+        <input type="hidden" id="opsCoverData">
+        <div id="opsCoverPreview" style="display:none;margin-top:8px"><img id="opsCoverPreviewImg" style="width:100%;height:80px;object-fit:cover;border-radius:8px"></div>
+      </div>
+      <input type="hidden" id="opsOrgId">
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" onclick="closeModal('orgPageSettingsModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveOrgPageSettings()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CREATE POST MODAL (inline composer replaces modal) ===================== -->
+
+<footer>
+  <div class="foot-grid">
+    <div>
+      <div class="foot-brand">
+        <div class="logo-mark">C</div>
+        <div class="logo-text"><strong>CEMS</strong><small>Caraga State University</small></div>
+      </div>
+      <p class="foot-about">The official Campus Event Management System of Caraga State University. Empowering Golden Paddlers to create, discover, and engage in every campus moment.</p>
+    </div>
+    <div class="foot-col"><h5>Platform</h5>
+      <a onclick="showPage('home')">Home</a><a onclick="document.getElementById('events-section').scrollIntoView({behavior:'smooth'})">Events</a><a onclick="openLogin()">Sign In</a>
+    </div>
+    <div class="foot-col"><h5>University</h5>
+      <a href="https://www.carsu.edu.ph" target="_blank">CSU Website</a><a>Academic Calendar</a><a>Contact OSAS</a>
+    </div>
+    <div class="foot-col"><h5>Support</h5>
+      <a>Help Center</a><a>Privacy Policy</a><a>Terms of Use</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <span>© 2025 Caraga State University · CEMS · All rights reserved.</span>
+    <span>Creating Futures. Empowering Communities.</span>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
